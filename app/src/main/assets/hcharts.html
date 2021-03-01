@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/data.js"></script>
+<script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/stock/indicators/indicators.js"></script>
+<script src="https://code.highcharts.com/stock/indicators/volume-by-price.js"></script>
+
+<script>
+    var url_string = window.location.href
+    var url = new URL(url_string);
+    var message = url.searchParams.get("message");
+    var charts_url = "http://localhost:8088/charts/"+message;
+    //document.write(message);
+
+    var charts_req = new XMLHttpRequest();
+    charts_req.onreadystatechange = function () {
+        if (charts_req.readyState == 4 && charts_req.status == 200) {
+            var data1 = JSON.parse(this.responseText);
+            var data=data1["data"];
+            console.log(data);
+            // split the data set into ohlc and volume
+            var ohlc = [],
+                volume = [],
+                dataLength = data.length,
+                // set the allowed units for data grouping
+                groupingUnits = [[
+                    'week',                         // unit name
+                    [1]                             // allowed multiples
+                ], [
+                    'month',
+                    [1, 2, 3, 4, 6]
+                ]],
+
+                i = 0;
+            for (i; i < dataLength; i += 1) {
+                let tpdate = (new Date(data[i].date)).getTime();
+                ohlc.push([
+                    tpdate, // the date
+                    data[i].open, // open
+                    data[i].high, // high
+                    data[i].low, // low
+                    data[i].close // close
+                ]);
+
+                volume.push([
+                    tpdate, // the date
+                    data[i].volume // the volume
+                ]);
+            }
+
+
+            // create the chart
+            Highcharts.stockChart('container', {
+
+                rangeSelector: {
+                    selected: 2
+                },
+                chart:{
+
+                backgroundColor:"#fcfcfc"
+                },
+
+                plotOptions: {
+            series: {
+                dataGrouping: {
+                    units: groupingUnits
+                    }
+                 }
+              },
+                yAxis: [{
+                    startOnTick: false,
+                    endOnTick: false,
+                    labels: {
+                        align: 'right',
+                        x: -3
+                    },
+                    title: {
+                        text: 'OHLC'
+                    },
+                    height: '60%',
+                    lineWidth: 2,
+                    resize: {
+                        enabled: true
+                    }
+                }, {
+                    labels: {
+                        align: 'right',
+                        x: -3
+                    },
+                    title: {
+                        text: 'Volume'
+                    },
+                    top: '65%',
+                    height: '35%',
+                    offset: 0,
+                    lineWidth: 2
+                }],
+
+                tooltip: {
+                    split: true
+                },
+
+                series: [{
+                    type: 'candlestick',
+                    name: message,
+                    id: 'aapl',
+                    zIndex: 2,
+                    data: ohlc
+                }, {
+                    type: 'column',
+                    name: 'Volume',
+                    id: 'volume',
+                    data: volume,
+                    yAxis: 1
+                }, {
+                    type: 'vbp',
+                    linkedTo: 'aapl',
+                    params: {
+                        volumeSeriesID: 'volume'
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    zoneLines: {
+                        enabled: false
+                    }
+                }, {
+                    type: 'sma',
+                    linkedTo: 'aapl',
+                    zIndex: 1,
+                    marker: {
+                        enabled: false
+                    }
+                }]
+            });
+
+        }
+    }
+    charts_req.open('GET', charts_url, true);
+    try {
+        charts_req.send();
+    }
+    catch (err) {
+        console.log(err);
+    }
+
+
+</script>
+</head>
+
+<body>
+<div id="container" style="height: 355px; min-width: 310px"></div></body>

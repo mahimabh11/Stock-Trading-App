@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Stocks</string>
+    <string name="footer">Powered by Tiingo</string>
+    <string name="star">star</string>
+    <string name="portfolio">Portfolio</string>
+    <string name="stats">Stats</string>
+    <string name="about">About</string>
+    <string name="trade">Trade</string>
+    <string name="more">Show more...    </string>
+    <string name="less">Show less    </string>
+    <string name="news">News</string>
+    <string name="shares">shares</string>
+    <string name="buy">Buy</string>
+    <string name="sell">Sell</string>
+    <string name="tiingo">Powered by tiingo</string>
+    <string name="congo">Congratulations!</string>
+    <string name="done">Done</string>
+    <string name="nworth">Net Worth</string>
+    <string name="fetch">Fetching Data</string>
+</resources>
